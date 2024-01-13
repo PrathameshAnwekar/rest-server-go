@@ -1,0 +1,51 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Ignore any local development config files
+.idea/
+
+# Dependency directories
+vendor/
+Godeps/
+*/Godeps/
+/_vendor/
+*/_vendor/
+.scratch/
+.svgo/
+
+# Output directories
+/dist/
+/dist-test/
+
+# OS-specific files
+Thumbs.db
+.DS_Store
+Icon?
+
+# Compiled Go files
+*.a
+*.o
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Go workspace
+.idea/
+
+# Go binary
+/bin/

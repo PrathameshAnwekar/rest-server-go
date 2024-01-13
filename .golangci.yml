@@ -1,0 +1,28 @@
+linters-settings:
+  golint:
+    min-confidence: 0.8
+
+linters:
+  enable-all: true
+  disable:
+    - maligned
+    - golint
+    - interfacer
+    - deadcode
+    - exhaustivestruct
+    - structcheck
+    - ifshort
+    - varcheck
+    - nosnakecase
+    - scopelint
+
+run:
+  issues-exit-code: 1
+  tests: true
+  skip-dirs-use-default: true
+  skip-files-use-default: true
+  skip-dirs:
+    - "vendor/"
+
+output-format: colored-line-number
+
