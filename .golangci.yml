@@ -15,6 +15,9 @@ linters:
     - varcheck
     - nosnakecase
     - scopelint
+    - wsl
+    - depguard
+    - exhaustruct
 
 run:
   issues-exit-code: 1
