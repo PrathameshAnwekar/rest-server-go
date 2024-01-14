@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/PrathameshAnwekar/rest-server-go/constants"
 	"github.com/PrathameshAnwekar/rest-server-go/api"
+	"github.com/PrathameshAnwekar/rest-server-go/constants"
+	"github.com/PrathameshAnwekar/rest-server-go/db"
 )
 
 func main() {
@@ -23,8 +24,13 @@ func main() {
 		ReadHeaderTimeout: constants.DefaultReadTimeout,
 	}
 
+	database := db.NewDB()
+
 	log.Printf("Server is listening on %s...\n", serverAddress)
-	log.Fatal(server.ListenAndServe())
+	if err := server.ListenAndServe(); err != nil {
+		database.CloseDB()
+		log.Fatalf("Error starting server: %s\n", err)
+	}
 }
 
 // setupHandlers configures different handlers for different paths.
