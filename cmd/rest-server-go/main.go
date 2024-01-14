@@ -9,6 +9,7 @@ import (
 	"github.com/PrathameshAnwekar/rest-server-go/api"
 	"github.com/PrathameshAnwekar/rest-server-go/constants"
 	"github.com/PrathameshAnwekar/rest-server-go/db"
+	"github.com/PrathameshAnwekar/rest-server-go/middleware"
 )
 
 func main() {
@@ -36,8 +37,10 @@ func main() {
 // setupHandlers configures different handlers for different paths.
 func setupHandlers() http.Handler {
 	mux := http.NewServeMux()
-
+	
 	mux.HandleFunc("/hello", api.Hello)
 
-	return mux
+	loggerMux := middleware.Logger(mux)
+
+	return loggerMux
 }
