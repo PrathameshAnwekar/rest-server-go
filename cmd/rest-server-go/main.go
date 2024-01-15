@@ -17,15 +17,15 @@ func main() {
 	flag.IntVar(&port, "port", constants.DefaultPort, "the port to run the server on")
 	serverAddress := fmt.Sprintf(":%d", port)
 
+	database := db.NewDB()
+
 	server := &http.Server{
 		Addr:              serverAddress,
-		Handler:           setupHandlers(),
+		Handler:           setupHandlers(database),
 		ReadTimeout:       constants.DefaultReadTimeout,
 		WriteTimeout:      constants.DefaultWriteTimeout,
 		ReadHeaderTimeout: constants.DefaultReadTimeout,
 	}
-
-	database := db.NewDB()
 
 	log.Printf("Server is listening on %s...\n", serverAddress)
 	if err := server.ListenAndServe(); err != nil {
@@ -35,10 +35,11 @@ func main() {
 }
 
 // setupHandlers configures different handlers for different paths.
-func setupHandlers() http.Handler {
+func setupHandlers(database *db.DB) http.Handler {
 	mux := http.NewServeMux()
-	
-	mux.HandleFunc("/hello", api.Hello)
+
+	userHandler := api.UserHandler{DB: database}
+	mux.HandleFunc("/user/put", userHandler.CreateUser)
 
 	loggerMux := middleware.Logger(mux)
 

@@ -18,6 +18,9 @@ linters:
     - wsl
     - depguard
     - exhaustruct
+    - varnamelen
+    - nlreturn
+    - execinquery
 
 run:
   issues-exit-code: 1
