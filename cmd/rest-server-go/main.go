@@ -40,6 +40,9 @@ func setupHandlers(database *db.DB) http.Handler {
 
 	userHandler := api.UserHandler{DB: database}
 	mux.HandleFunc("/user/put", userHandler.CreateUser)
+	mux.HandleFunc("/user/get", userHandler.GetUser)
+	mux.HandleFunc("/user/delete", userHandler.DeleteUser)
+	mux.HandleFunc("/user/update", userHandler.UpdateUser)
 
 	loggerMux := middleware.Logger(mux)
 
