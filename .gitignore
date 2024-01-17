@@ -49,3 +49,6 @@ Icon?
 
 # Go binary
 /bin/
+
+# Redis dump file
+*.rdb

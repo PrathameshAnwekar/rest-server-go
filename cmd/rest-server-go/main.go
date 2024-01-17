@@ -18,10 +18,11 @@ func main() {
 	serverAddress := fmt.Sprintf(":%d", port)
 
 	database := db.NewDB()
+	redisClient := db.NewRedisClient()
 
 	server := &http.Server{
 		Addr:              serverAddress,
-		Handler:           setupHandlers(database),
+		Handler:           setupHandlers(database, redisClient),
 		ReadTimeout:       constants.DefaultReadTimeout,
 		WriteTimeout:      constants.DefaultWriteTimeout,
 		ReadHeaderTimeout: constants.DefaultReadTimeout,
@@ -30,12 +31,13 @@ func main() {
 	log.Printf("Server is listening on %s...\n", serverAddress)
 	if err := server.ListenAndServe(); err != nil {
 		database.CloseDB()
+		redisClient.Close()
 		log.Fatalf("Error starting server: %s\n", err)
 	}
 }
 
 // setupHandlers configures different handlers for different paths.
-func setupHandlers(database *db.DB) http.Handler {
+func setupHandlers(database *db.DB, redisClient *db.Redis) http.Handler {
 	mux := http.NewServeMux()
 
 	userHandler := api.UserHandler{DB: database}
@@ -45,6 +47,7 @@ func setupHandlers(database *db.DB) http.Handler {
 	mux.HandleFunc("/user/update", userHandler.UpdateUser)
 
 	loggerMux := middleware.Logger(mux)
+	authMux := middleware.Auth(loggerMux, redisClient)
 
-	return loggerMux
+	return authMux
 }

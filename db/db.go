@@ -35,6 +35,6 @@ func NewDB() *DB {
 func (db *DB) CloseDB() {
 	if db != nil {
 		db.Conn.Close()
-		log.Println("Database Connection closed.")
+		log.Println("Postgres DB connection closed.")
 	}
 }
