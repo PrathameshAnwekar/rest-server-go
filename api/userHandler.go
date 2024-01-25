@@ -17,6 +17,15 @@ type UserHandler struct {
 	DB *db.DB
 }
 
+func (h *UserHandler) RegisterRoutes(server *gin.Engine) {
+	userGroup := server.Group("/user")
+
+	userGroup.PUT("/put", h.CreateUser)
+	userGroup.GET("/get", h.GetUser)
+	userGroup.DELETE("/delete", h.DeleteUser)
+	userGroup.PATCH("/update", h.UpdateUser)
+}
+
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var newUser models.User
 	err := json.NewDecoder(c.Request.Body).Decode(&newUser)

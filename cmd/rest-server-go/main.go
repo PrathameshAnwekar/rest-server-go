@@ -34,10 +34,10 @@ func main() {
 
 func setupRoutes(server *gin.Engine, database *db.DB) *gin.Engine {
 	userHandler := api.UserHandler{DB: database}
-	server.PUT("/user/put", userHandler.CreateUser)
-	server.GET("/user/get", userHandler.GetUser)
-	server.DELETE("/user/delete", userHandler.DeleteUser)
-	server.PATCH("/user/update", userHandler.UpdateUser)
+	mediaHandler := api.MediaHandler{}
+
+	userHandler.RegisterRoutes(server)
+	mediaHandler.RegisterRoutes(server)
 
 	return server
 }
