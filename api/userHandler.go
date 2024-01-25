@@ -10,75 +10,76 @@ import (
 
 	"github.com/PrathameshAnwekar/rest-server-go/db"
 	"github.com/PrathameshAnwekar/rest-server-go/models"
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
 	DB *db.DB
 }
 
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) CreateUser(c *gin.Context) {
 	var newUser models.User
-	err := json.NewDecoder(r.Body).Decode(&newUser)
+	err := json.NewDecoder(c.Request.Body).Decode(&newUser)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Error decoding request body: %s", err))
 		return
 	}
 
 	query := "INSERT INTO users (username, email) VALUES($1, $2) RETURNING id"
 	err = h.DB.Conn.QueryRow(query, newUser.Username, newUser.Email).Scan(&newUser.ID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error creating the user: %s", err), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Error creating the user: %s", err))
 		return
 	}
 
-	setUserHandlerResponse(&newUser, w)
+	c.JSON(http.StatusOK, newUser)
 }
 
-func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) GetUser(c *gin.Context) {
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(c.Request.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Error decoding request body: %s", err))
 		return
 	}
 
 	query := "SELECT id, username, email FROM users WHERE id = $1"
 	err = h.DB.Conn.QueryRow(query, user.ID).Scan(&user.ID, &user.Email, &user.Username)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error getting the user: %s", err), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Error getting the user: %s", err))
 		return
 	}
 
-	setUserHandlerResponse(&user, w)
+	c.JSON(http.StatusOK, user)
 }
 
-func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) UpdateUser(c *gin.Context) {
 	var updatedUser models.User
-	err := json.NewDecoder(r.Body).Decode(&updatedUser)
+	err := json.NewDecoder(c.Request.Body).Decode(&updatedUser)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Error decoding request body: %s", err))
 		return
 	}
 	if updatedUser.Username == "" || updatedUser.Email == "" {
-		http.Error(w, "Both username and email are required", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, "Both username and email are required")
 		return
 	}
 
 	query := "UPDATE users SET username = $1, email = $2 WHERE id = $3"
 	_, err = h.DB.Conn.Exec(query, updatedUser.Username, updatedUser.Email, updatedUser.ID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error updating the user: %s", err), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Error updating the user: %s", err))
 		return
 	}
 
-	setUserHandlerResponse(&updatedUser, w)
+	c.JSON(http.StatusOK, updatedUser)
 }
 
-func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) DeleteUser(c *gin.Context) {
 	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(c.Request.Body).Decode(&user)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error decoding request body: %s", err), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, fmt.Sprintf("Error decoding request body: %s", err))
 		return
 	}
 	log.Printf("deleting %d", user.ID)
@@ -86,22 +87,12 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	_, err = h.DB.Conn.Exec(query, user.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			http.Error(w, fmt.Sprintf("No user with id %d : %s", user.ID, err), http.StatusInternalServerError)
+			c.JSON(http.StatusInternalServerError, fmt.Sprintf("No user with id %d : %s", user.ID, err))
 			return
 		}
-		http.Error(w, fmt.Sprintf("Error deleting the user: %s", err), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, fmt.Sprintf("Error deleting the user: %s", err))
 		return
 	}
 
-	setUserHandlerResponse(&user, w)
-}
-
-func setUserHandlerResponse(user *models.User, w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(user)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error returning the user: %s", err), http.StatusInternalServerError)
-		return
-	}
+	c.JSON(http.StatusOK, user)
 }

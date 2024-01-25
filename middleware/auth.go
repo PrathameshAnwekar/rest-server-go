@@ -4,30 +4,44 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/PrathameshAnwekar/rest-server-go/db"
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 )
 
-func Auth(next http.Handler, redisClient *db.Redis) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		token := r.Header.Get("Authorization")
+func Auth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, ok := c.Get("app")
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Context not set up correctly"})
+			return
+		}
+
+		app, ok := ctx.(*App)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to assert app as *App type"})
+			return
+		}
+
+		redisClient := app.Redis
+
+		token := c.Request.Header.Get("Authorization")
 
 		if token == "" {
-			http.Error(w, "Unauthorized, not token found.", http.StatusUnauthorized)
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized, no token found"})
 			return
 		}
 
 		_, err := redisClient.Client.Get(token).Result()
 		if err != nil {
 			if errors.Is(err, redis.Nil) {
-				http.Error(w, "Unauthorized, expired token.", http.StatusUnauthorized)
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized, expired token"})
 				return
 			}
 
-			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	})
+		c.Next()
+	}
 }
