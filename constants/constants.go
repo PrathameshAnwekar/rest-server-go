@@ -16,3 +16,9 @@ const (
 	DBPassword = "anwprath"
 	DBName     = "rest_server_go"
 )
+
+const (
+	RectBegin      = 50
+	RectEnd        = 200
+	FrameThickness = 2
+)

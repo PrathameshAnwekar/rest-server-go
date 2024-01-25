@@ -22,5 +22,5 @@ func Setup(server *gin.Engine, database *db.DB, redisClient *db.Redis) {
 
 	server.Use(gin.Recovery())
 	server.Use(Logger())
-	server.Use(Auth())
+	// server.Use(Auth())
 }

@@ -22,6 +22,11 @@ build_and_run.sh requires the following dependencies to be installed and present
   ```
   brew install gofumpt
   ```
+* [opencv](https://gocv.io/getting-started/macos/)
+  ```
+  brew install opencv
+  brew install pkgconfig
+  ```
 
 ### Building the Project
 
