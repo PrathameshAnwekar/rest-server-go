@@ -1,8 +1,10 @@
 package db
 
 import (
+	"fmt"
 	"log"
 
+	"github.com/PrathameshAnwekar/rest-server-go/constants"
 	"github.com/go-redis/redis"
 )
 
@@ -13,8 +15,8 @@ type Redis struct {
 func NewRedisClient() *Redis {
 	var newClient Redis
 	newClient.Client = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // replace with your Redis server address
-		Password: "",               // replace with your Redis server password
+		Addr:     fmt.Sprintf("%s:%d", constants.RedisHost, constants.RedisPort),
+		Password: "",
 		DB:       0,
 	})
 

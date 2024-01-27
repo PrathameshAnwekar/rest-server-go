@@ -6,7 +6,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/lib/pq v1.10.9
-	gocv.io/x/gocv v0.35.0
 )
 
 require (

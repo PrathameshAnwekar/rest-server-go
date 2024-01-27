@@ -38,7 +38,8 @@ func Auth() gin.HandlerFunc {
 				return
 			}
 
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+			c.AbortWithStatusJSON(http.StatusInternalServerError,
+				gin.H{"error": "Internal Server Error, something wrong with redis", "redis-error": err})
 			return
 		}
 

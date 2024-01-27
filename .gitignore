@@ -52,3 +52,7 @@ Icon?
 
 # Redis dump file
 *.rdb
+
+# db data from docker container
+/postgres-data/
+/redis-data/

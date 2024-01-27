@@ -10,11 +10,8 @@ import (
 	"math/big"
 	"net/http"
 	"os"
-	"time"
 
-	cs "github.com/PrathameshAnwekar/rest-server-go/constants"
 	"github.com/gin-gonic/gin"
-	"gocv.io/x/gocv"
 )
 
 type MediaHandler struct{}
@@ -24,7 +21,6 @@ func (h *MediaHandler) RegisterRoutes(server *gin.Engine) {
 
 	userGroup.GET("/image", h.GetImage)
 	userGroup.GET("/video-stream", h.GetVideoStream)
-	userGroup.GET("/camera-stream", h.GetCameraStream)
 }
 
 func (h *MediaHandler) GetImage(c *gin.Context) {
@@ -70,53 +66,6 @@ func (h *MediaHandler) GetVideoStream(c *gin.Context) {
 		c.Data(http.StatusOK, "video/mp4", buffer[:n])
 
 		c.Writer.Flush()
-	}
-}
-
-// GetCameraStream uses the opencv library, however simple libraries like
-// `github.com/blackjack/webcam` should work too.
-func (h *MediaHandler) GetCameraStream(c *gin.Context) {
-	c.Header("Content-Type", "multipart/x-mixed-replace; boundary=frame")
-
-	camera, err := gocv.OpenVideoCapture(0)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err)
-		return
-	}
-	defer camera.Close()
-
-	frame := gocv.NewMat()
-	defer frame.Close()
-
-	for {
-		if ok := camera.Read(&frame); !ok {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, err)
-			return
-		}
-
-		gocv.Rectangle(&frame,
-			image.Rect(cs.RectBegin, cs.RectBegin, cs.RectEnd, cs.RectEnd),
-			color.RGBA{255, 0, 0, 0}, cs.FrameThickness)
-
-		imgBytes, err := gocv.IMEncode(".jpg", frame)
-		if err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, err)
-			return
-		}
-		data := "--frame\r\n  Content-Type: image/jpeg\r\n\r\n" + string(imgBytes.GetBytes()) + "\r\n\r\n"
-		c.Data(http.StatusOK, "image/jpeg", []byte(data))
-
-		c.Writer.Flush()
-
-		time.Sleep(time.Millisecond)
-
-		// stops the stream if client disconnects
-		select {
-		case <-c.Request.Context().Done():
-			return
-		default:
-			continue
-		}
 	}
 }
 

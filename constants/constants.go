@@ -10,11 +10,16 @@ const (
 )
 
 const (
-	DBHost     = "localhost"
+	DBHost     = "rest-server-go-postgresql"
 	DBPort     = 5432
-	DBUsername = "anwprath"
-	DBPassword = "anwprath"
+	DBUsername = "postgres"
+	DBPassword = ""
 	DBName     = "rest_server_go"
+)
+
+const (
+	RedisHost = "rest-server-go-redis"
+	RedisPort = 6379
 )
 
 const (

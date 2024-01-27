@@ -23,10 +23,11 @@ func NewDB() *DB {
 	}
 	log.Printf("Opened database connection to %s", constants.DBName)
 
-	err = postgresDB.Ping()
-	if err != nil {
-		log.Fatal(fmt.Errorf("failed to ping database: %w", err))
-	}
+	// Required dumb init because of docker, will add later
+	// err = postgresDB.Ping()
+	// if err != nil {
+	// 	log.Fatal(fmt.Errorf("failed to ping database: %w", err))
+	// }
 	log.Println("Connected to postgres database:", constants.DBName)
 
 	return &DB{Conn: postgresDB}
